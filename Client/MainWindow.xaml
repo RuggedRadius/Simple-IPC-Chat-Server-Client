@@ -1,0 +1,88 @@
+﻿<Window x:Class="AT2_4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AT2_4"
+        mc:Ignorable="d"
+        Title="Client" Height="670" Width="760" WindowStartupLocation="CenterScreen" MinWidth="760" MinHeight="670">
+    <Grid>
+        <Grid Margin="0" Background="#FF3E3D3D">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <GroupBox x:Name="groupBox_Copy" Header="Connection" HorizontalAlignment="Left" Height="55" Margin="10,5,0,0" VerticalAlignment="Top" Width="240" Foreground="White">
+                <GroupBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00000000" Offset="1"/>
+                        <GradientStop Color="Black"/>
+                    </LinearGradientBrush>
+                </GroupBox.Background>
+                <Label x:Name="lblConnectionStatus" Content="Disconnected" Width="153" Foreground="Red" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="16"/>
+            </GroupBox>
+            <GroupBox x:Name="grpMessages" Header="Messages" Margin="260,10,10,10" Foreground="White">
+                <GroupBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00000000" Offset="1"/>
+                        <GradientStop Color="Black"/>
+                    </LinearGradientBrush>
+                </GroupBox.Background>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="49*"/>
+                        <ColumnDefinition Width="424*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtMessages" IsReadOnly="True" Margin="5,5,5,40" TextWrapping="Wrap" Grid.ColumnSpan="2" Background="Transparent" Foreground="#FFDFC4FF" BorderBrush="#00ABADB3"/>
+                    <TextBox x:Name="txtSend" Height="30" Margin="5,0,130,5" TextWrapping="Wrap" VerticalAlignment="Bottom" KeyDown="txtSend_KeyDown" Grid.ColumnSpan="2" MinWidth="200" Background="Transparent" Foreground="White" CaretBrush="White">
+                        <TextBox.BorderBrush>
+                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                <GradientStop Color="White" Offset="0"/>
+                                <GradientStop Color="White" Offset="1"/>
+                                <GradientStop Color="#FF535353" Offset="0.519"/>
+                            </LinearGradientBrush>
+                        </TextBox.BorderBrush>
+                    </TextBox>
+                    <Button x:Name="btnSend" Content="Send" HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom" Width="112" Height="30" Click="btnSend_Click" Grid.Column="1" Background="#00DDDDDD" Foreground="#FFBFBFBF"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox x:Name="grpLog" Header="Log" Margin="10,355,0,10" Foreground="White" Width="240" HorizontalAlignment="Left">
+                <GroupBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00000000" Offset="1"/>
+                        <GradientStop Color="Black"/>
+                    </LinearGradientBrush>
+                </GroupBox.Background>
+                <Grid>
+                    <TextBox x:Name="txtLog" IsReadOnly="True" Margin="5" TextWrapping="Wrap" Foreground="#FF8F8F8F" Background="Transparent" BorderBrush="#00ABADB3"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox x:Name="grpClientInformation" Header="Client Information" HorizontalAlignment="Left" Height="230" Margin="10,125,0,10" VerticalAlignment="Top" Width="240" Foreground="White">
+                <GroupBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00000000" Offset="1"/>
+                        <GradientStop Color="Black"/>
+                    </LinearGradientBrush>
+                </GroupBox.Background>
+                <Grid>
+                    <TextBox x:Name="txtClientServerName" HorizontalAlignment="Left" Height="23" Margin="7,28,0,0" TextWrapping="Wrap" Text="testCHAN" VerticalAlignment="Top" Width="212" TextChanged="txtClientServerName_TextChanged"/>
+                    <Button x:Name="btnClientDisconnect" Content="Disconnect" HorizontalAlignment="Left" Margin="4,175,0,0" VerticalAlignment="Top" Width="90" Height="25" Click="btnClientDisconnect_Click"/>
+                    <Label x:Name="label2" Content="Server Path" HorizontalAlignment="Left" Margin="4,2,0,0" VerticalAlignment="Top" Width="123" Foreground="White" Height="31"/>
+                    <Button x:Name="btnClientConnect" Content="Login" HorizontalAlignment="Left" Margin="123,175,0,0" VerticalAlignment="Top" Width="95" Height="25" Click="btnClientConnect_Click"/>
+                    <TextBox x:Name="txtUsername" HorizontalAlignment="Left" Height="23" Margin="7,82,0,0" TextWrapping="Wrap" Text="admin1" VerticalAlignment="Top" Width="212" TextChanged="txtClientServerName_TextChanged"/>
+                    <Label x:Name="label2_Copy" Content="Username" HorizontalAlignment="Left" Margin="4,57,0,0" VerticalAlignment="Top" Width="123" Foreground="White" Height="31"/>
+                    <Label x:Name="label2_Copy1" Content="Password" HorizontalAlignment="Left" Margin="4,112,0,0" VerticalAlignment="Top" Width="123" Foreground="White" Height="31"/>
+                    <PasswordBox x:Name="txtPassword" HorizontalAlignment="Left" Margin="8,136,0,0" VerticalAlignment="Top" Width="212" Height="23" Password="password1"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox x:Name="groupBox_Copy1" Header="Account" HorizontalAlignment="Left" Height="55" Margin="10,65,0,0" VerticalAlignment="Top" Width="240" Foreground="White">
+                <GroupBox.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#00000000" Offset="1"/>
+                        <GradientStop Color="Black"/>
+                    </LinearGradientBrush>
+                </GroupBox.Background>
+                <Label x:Name="lblAccountStatus" Content="Logged Out" Width="153" Foreground="Red" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="16"/>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>
