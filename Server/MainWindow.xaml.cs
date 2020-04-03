@@ -25,13 +25,15 @@ namespace AT2_4
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region Attributes
         private PipeServer pipeServer;        
         static UserRepository userRepo = new UserRepository();
         static PasswordManager pwdManager = new PasswordManager();
         public string currentServerName;
-
         private List<User> onlineUsers;
+        #endregion
 
+        #region Constructor
         public MainWindow()
         {
             // Initialise the window
@@ -40,8 +42,9 @@ namespace AT2_4
             // Initialise the server
             InitialiseServer();
         }
+        #endregion
 
-
+        #region Server Methods
         void InitialiseServer()
         {
             // Create admin accounts
@@ -65,7 +68,6 @@ namespace AT2_4
 
             log("Server initialised");
         }
-
         public void CreateAdminAccount()
         {
             log("Creating accounts...");
@@ -90,31 +92,6 @@ namespace AT2_4
                 log(string.Format("{0} created", username));
             }
         }
-
-        public static string SimulateUserCreation()
-        {
-            Console.WriteLine("Let us first test the password hash creation i.e. User creation");
-
-            Console.WriteLine("Please enter user id");
-            string userid = Console.ReadLine();
-
-            Console.WriteLine("Please enter password");
-            string password = Console.ReadLine();
-            string salt = null;
-            string passwordHash = pwdManager.GeneratePasswordHash(password, out salt);
-
-            // Let us save the values in the database
-            User user = new User
-            {
-                UserId = userid,
-                PasswordHash = passwordHash,
-                Salt = salt
-            };
-            // Lets Add the User to the database
-            userRepo.AddUser(user);
-            return salt;
-        }
-
         public void Login(string username, string password)
         {
             log("User logging in...");
@@ -159,33 +136,29 @@ namespace AT2_4
                 log("Incorrect Username/Password");
             }
         }
-
-        public static void SimulateLogin(string salt)
+        private string getServerPathByName(string name)
         {
-            Console.WriteLine("Now let is simulate the password comparison");
-
-            Console.WriteLine("Please enter user id");
-            string userid = Console.ReadLine();
-
-            Console.WriteLine("Please enter password");
-            string password = Console.ReadLine();
-
-            // Let us retrieve the values from the database
-            User user2 = userRepo.GetUser(userid);
-
-            bool result = pwdManager.IsPasswordMatch(password, user2.Salt, user2.PasswordHash);
-
-            if (result == true)
-            {
-                Console.WriteLine("Password Matched");
-            }
-            else
-            {
-                Console.WriteLine("Password not Matched");
-            }
+            return string.Format(@"\\.\pipe\{0}", name);
         }
+        public void log(string log)
+        {
+            Dispatcher.Invoke(() => {
+                // Get current time
+                string currentDateTime = DateTime.Now.TimeOfDay.ToString();
 
+                // Truncate time
+                string time = currentDateTime.Substring(0, currentDateTime.IndexOf('.'));
 
+                // Add to log
+                txtLog.Text += string.Format("[{0}] {1}\r\n", time, log);
+
+                // Scroll log to most recent entry
+                txtLog.ScrollToEnd();
+            });
+        }
+        #endregion
+
+        #region Control Event Handlers
         private void btnSend_Click(object sender, RoutedEventArgs e)
         {
             if (txtSend.Text != string.Empty)
@@ -215,93 +188,6 @@ namespace AT2_4
             // Clear send text box
             txtSend.Text = string.Empty;
         }
-        private void addToMessages(string message)
-        {
-            Dispatcher.Invoke(() => {
-                txtMessages.Text += String.Format("{0}\r\n", message);
-                txtMessages.ScrollToEnd();
-            });
-        }
-
-        public void log(string log)
-        {
-            Dispatcher.Invoke(() => {
-                // Get current time
-                string currentDateTime = DateTime.Now.TimeOfDay.ToString();
-
-                // Truncate time
-                string time = currentDateTime.Substring(0, currentDateTime.IndexOf('.'));
-
-                // Add to log
-                txtLog.Text += string.Format("[{0}] {1}\r\n", time, log);
-
-                // Scroll log to most recent entry
-                txtLog.ScrollToEnd();
-            });
-        }
-        
-        private void pipeServer_ClientDisconnected()
-        {
-            Dispatcher.Invoke(new PipeServer.ClientDisconnectedHandler(ClientDisconnected));
-            Dispatcher.Invoke(() => {
-                txtMessages.Text += "*Client has disconnected.*\r\n";
-                txtMessages.ScrollToEnd();
-
-            });
-        }
-
-        private void ClientDisconnected()
-        {
-            
-            log("Client disconnected");            
-        }
-
-        private void pipeServer_MessageReceived(byte[] message)
-        {
-            log("Message received");
-
-            // Convert message to string
-            string msg = System.Text.Encoding.UTF8.GetString(message, 0, message.Length);
-
-            // Filter login attempt
-            if (msg.StartsWith("-login "))
-            {
-                int whiteSpaceIndex = msg.LastIndexOf(' ');
-                string username = msg.Substring(7, whiteSpaceIndex - 7);
-                string passsword = msg.Substring(whiteSpaceIndex, msg.Length - whiteSpaceIndex);
-                passsword = passsword.Substring(1, passsword.Length - 1);
-                Login(username, passsword);
-                return;
-            }
-
-            // Display message
-            //Dispatcher.Invoke(new PipeServer.MessageReceivedHandler(DisplayMessageReceived), new object[] { message });
-
-            // Convert string to byte[]
-            msg = String.Format("Client:\t{0}\r\n", msg);
-            ASCIIEncoding encoder = new ASCIIEncoding();
-            byte[] messageBuffer = encoder.GetBytes(msg);
-
-            // Send message to all
-            pipeServer.SendMessage(messageBuffer);
-
-            // Add to messages
-            Dispatcher.Invoke(() => {
-                txtMessages.Text += msg;
-                txtMessages.ScrollToEnd();
-            });
-
-
-        }
-
-        private void DisplayMessageReceived(byte[] message)
-        {
-            ASCIIEncoding encoder = new ASCIIEncoding();
-            string str = encoder.GetString(message, 0, message.Length);
-
-            addToMessages(str);
-        }
-
         private void btnStartServer_Click(object sender, RoutedEventArgs e)
         {
             //start the pipe server if it's not already running
@@ -320,13 +206,11 @@ namespace AT2_4
                 MessageBox.Show("Server already running.");
             }
         }
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // DEBUG ONLY
             btnStartServer_Click(sender, e);
         }
-
         private void txtSend_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -334,10 +218,57 @@ namespace AT2_4
                 btnSend_Click(sender, e);
             }
         }
+        #endregion
 
-        private string getServerPathByName(string name)
+        #region Server Event Methods
+        private void pipeServer_ClientDisconnected()
         {
-            return string.Format(@"\\.\pipe\{0}", name);
+            Dispatcher.Invoke(new PipeServer.ClientDisconnectedHandler(ClientDisconnected));
+            Dispatcher.Invoke(() => {
+                txtMessages.Text += "*Client has disconnected.*\r\n";
+                txtMessages.ScrollToEnd();
+
+            });
         }
+        private void ClientDisconnected()
+        {
+            
+            log("Client disconnected");            
+        }
+        private void pipeServer_MessageReceived(byte[] message)
+        {
+            log("Message received");
+
+            // Convert message to string
+            string msg = System.Text.Encoding.UTF8.GetString(message, 0, message.Length);
+
+            // Filter login attempt
+            if (msg.StartsWith("-login "))
+            {
+                int whiteSpaceIndex = msg.LastIndexOf(' ');
+                string username = msg.Substring(7, whiteSpaceIndex - 7);
+                string passsword = msg.Substring(whiteSpaceIndex, msg.Length - whiteSpaceIndex);
+                passsword = passsword.Substring(1, passsword.Length - 1);
+                Login(username, passsword);
+                return;
+            }
+
+            // Convert string to byte[]
+            msg = String.Format("Client:\t{0}\r\n", msg);
+            ASCIIEncoding encoder = new ASCIIEncoding();
+            byte[] messageBuffer = encoder.GetBytes(msg);
+
+            // Send message to all
+            pipeServer.SendMessage(messageBuffer);
+
+            // Add to messages
+            Dispatcher.Invoke(() => {
+                txtMessages.Text += msg;
+                txtMessages.ScrollToEnd();
+            });
+
+
+        }
+        #endregion
     }
 }
